@@ -2,10 +2,10 @@ import * as db from "../fake-db";
 
 // get posts
 // Make calls to your db from this file!
-async function getPosts(n = 5, sub = undefined) {
-  return db.getPosts(n, sub);
+export async function getPosts(n = 20, sub: string | undefined = undefined) {
+  // Adding "as any" stops TypeScript from panicking about the fake-db parameter inference
+  return db.getPosts(n, sub as any);
 }
-
 export async function getPost(id: string | number) {
   return db.getPost(Number(id));
 }
