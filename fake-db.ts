@@ -76,9 +76,15 @@ function getUser(id) {
 }
 
 function getUserByUsername(uname: any) {
-  return getUser(
-    Object.values(users).filter((user) => user.uname === uname)[0].id
+  const foundUser = Object.values(users).find(
+    (user: any) => user.uname === uname,
   );
+
+  if (foundUser) {
+    return getUser(foundUser.id);
+  } else {
+    return null;
+  }
 }
 
 function getVotesForPost(post_id) {
@@ -166,8 +172,10 @@ function addComment(post_id, creator, description) {
   return comment;
 }
 function addVote(post_id, user_id, value) {
-  let existingVote = votes.find((v) => v.post_id === Number(post_id) && v.user_id === Number(user_id));
-  
+  let existingVote = votes.find(
+    (v) => v.post_id === Number(post_id) && v.user_id === Number(user_id),
+  );
+
   if (existingVote) {
     // If clicking the same button, cancel the vote
     if (existingVote.value === Number(value)) {
@@ -178,7 +186,11 @@ function addVote(post_id, user_id, value) {
     }
   } else {
     // New vote
-    votes.push({ user_id: Number(user_id), post_id: Number(post_id), value: Number(value) });
+    votes.push({
+      user_id: Number(user_id),
+      post_id: Number(post_id),
+      value: Number(value),
+    });
   }
 }
 export {
@@ -193,5 +205,5 @@ export {
   getSubs,
   addComment,
   decoratePost,
-  addVote
+  addVote,
 };
