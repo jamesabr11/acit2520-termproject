@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.classless.min.css"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+    <title>Delete Post</title>
+  </head>
+  <body>
+    <main>
+      <div class="authOptions">
+        <h1>Delete Post</h1>
+      </div>
+      
+      <article style="border: 2px solid #dc3545; padding: 2rem; border-radius: 8px; text-align: center; margin-top: 2rem;">
+        <h2 style="color: #dc3545; margin-bottom: 1rem;">Are you sure?</h2>
+        <p>You are about to permanently delete your post: <br><strong style="font-size: 1.2rem;">"<%= post.title %>"</strong></p>
+        
+        <form action="/posts/delete/<%= post.id %>" method="POST" style="margin-top: 2rem;">
+          <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a role="button" href="/posts/show/<%= post.id %>" class="outline">Cancel</a>
+            
+            <button type="submit" style="background-color: #dc3545; border-color: #dc3545; width: auto;">Yes, Delete Post</button>
+          </div>
+        </form>
+      </article>
+    </main>
+  </body>
+</html>
