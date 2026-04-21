@@ -10,6 +10,11 @@
     />
     <link href="/css/style.css" rel="stylesheet" />
     <title>Homepage</title>
+    <style>
+      /* extracted classes beause without wouldnt work */
+      .voted-up { background-color: #28a745 !important; border-color: #28a745 !important; }
+      .voted-down { background-color: #dc3545 !important; border-color: #dc3545 !important; }
+    </style>
   </head>
   <body>
     <main>
@@ -53,7 +58,6 @@
             let netVotes = 0;
             let myVote = 0;
             
-            // Calculate total votes and find if the current user voted
             if (post.votes && Array.isArray(post.votes)) {
                 netVotes = post.votes.reduce((total, v) => total + v.value, 0);
                 if (user) {
@@ -69,14 +73,14 @@
             <% if (user) { %>
               <form action="/posts/vote/<%= post.id %>" method="POST" style="margin: 0;">
                 <input type="hidden" name="setvoteto" value="1">
-                <button type="submit" style="margin: 0; padding: 5px 15px; <%= myVote === 1 ? 'background-color: #28a745; border-color: #28a745;' : '' %>">
+                <button type="submit" class="<%= myVote === 1 ? 'voted-up' : '' %>" style="margin: 0; padding: 5px 15px;">
                   + Up
                 </button>
               </form>
 
               <form action="/posts/vote/<%= post.id %>" method="POST" style="margin: 0;">
                 <input type="hidden" name="setvoteto" value="-1">
-                <button type="submit" style="margin: 0; padding: 5px 15px; <%= myVote === -1 ? 'background-color: #dc3545; border-color: #dc3545;' : '' %>">
+                <button type="submit" class="<%= myVote === -1 ? 'voted-down' : '' %>" style="margin: 0; padding: 5px 15px;">
                   - Down
                 </button>
               </form>
