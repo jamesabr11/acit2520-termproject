@@ -165,7 +165,22 @@ function addComment(post_id, creator, description) {
   comments[id] = comment;
   return comment;
 }
-
+function addVote(post_id, user_id, value) {
+  let existingVote = votes.find((v) => v.post_id === Number(post_id) && v.user_id === Number(user_id));
+  
+  if (existingVote) {
+    // If clicking the same button, cancel the vote
+    if (existingVote.value === Number(value)) {
+      existingVote.value = 0;
+    } else {
+      // Otherwise update it
+      existingVote.value = Number(value);
+    }
+  } else {
+    // New vote
+    votes.push({ user_id: Number(user_id), post_id: Number(post_id), value: Number(value) });
+  }
+}
 export {
   debug,
   getUser,
@@ -178,4 +193,5 @@ export {
   getSubs,
   addComment,
   decoratePost,
+  addVote
 };
