@@ -3,10 +3,9 @@ import express from "express";
 import * as database from "../controller/postController";
 const router = express.Router();
 import { ensureAuthenticated } from "../middleware/checkAuth";
-import { userInfo } from "os";
 
 // ------------------------------------
-// veiw posts
+// view posts
 router.get("/", async (req, res) => {
   const posts = await database.getPosts(20);
   const user = await req.user;
@@ -14,45 +13,49 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/show/:postid", async (req, res) => {
-  const postid = req.params.postid
-  const post = await database.getPosts(postid)
-  const comments = await database.getCommentsForPost(postid)
-  const user = req.user
+  const postid = req.params.postid;
+  
+  const post = await database.getPost(postid);
+  const comments = await database.getCommentsForPost(postid);
+  const user = req.user;
 
   if (!post) {
-    return res.status(404).send("Post not found")
+    return res.status(404).send("Post not found");
   }
-  res.render("individualPost", { post, comments, user})
-})
+  res.render("individualPost", { post, comments, user });
+});
 
 // ------------------------------------
 // create posts 
 router.get("/create", ensureAuthenticated, (req, res) => {
-  res.render("createPosts", { user: req.user});
+  res.render("createPosts", { user: req.user });
 });
 
 router.post("/create", ensureAuthenticated, async (req, res) => {
   // ⭐ Done
-  const { title, link, desciption, subgroup } = req.body
-  const creator = req.user.id 
+  // 
+  const { title, link, description, subgroup } = req.body;
+  const creator = req.user.id; 
 
-  if (!link && !desciption) {
-    return res.status(400).send("You must give a link or description")
+  if (!link && !description) {
+    return res.status(400).send("You must give a link or description");
   }
 
-  const newPost = await database.addPost(title, link, desciption, creator, subgroup)
-    res.redirect(`/posts/show/${newPost.id}`)
+  const newPost = await database.addPost(title, link, description, creator, subgroup);
+  res.redirect(`/posts/show/${newPost.id}`);
 });
 
 // ------------------------------------
 // edit posts
-router.get("/edit/:postid", async (req, res) => {
-  const post = await database.getPost(req.params.postid)
+//  ensureAuthenticated middleware
+router.get("/edit/:postid", ensureAuthenticated, async (req, res) => {
+  const post = await database.getPost(req.params.postid);
 
-if (!post) return res.status(404).send("Post not found");
+  if (!post) return res.status(404).send("Post not found");
   
   // only the creator can edit
-  if (post.creator !== req.user.id) {
+  const isCreator = post.creator === req.user.id || post.creator?.id === req.user.id;
+  if (!isCreator) {
     return res.status(403).send("You do not have permission to edit this post.");
   }
 
@@ -60,10 +63,12 @@ if (!post) return res.status(404).send("Post not found");
 });
 
 router.post("/edit/:postid", ensureAuthenticated, async (req, res) => {
-    // ⭐ done
+  // ⭐ done
   const post = await database.getPost(req.params.postid);
 
-  if (post.creator !== req.user.id) {
+  
+  const isCreator = post.creator === req.user.id || post.creator?.id === req.user.id;
+  if (!isCreator) {
     return res.status(403).send("Unauthorized");
   }
 
@@ -79,7 +84,9 @@ router.get("/deleteconfirm/:postid", ensureAuthenticated, async (req, res) => {
 
   if (!post) return res.status(404).send("Post not found");
   
-  if (post.creator !== req.user.id) {
+  
+  const isCreator = post.creator === req.user.id || post.creator?.id === req.user.id;
+  if (!isCreator) {
     return res.status(403).send("You do not have permission to delete this post.");
   }
 
@@ -91,7 +98,9 @@ router.post("/delete/:postid", ensureAuthenticated, async (req, res) => {
 
   if (!post) return res.redirect("/");
 
-  if (post.creator === req.user.id) {
+  
+  const isCreator = post.creator === req.user.id || post.creator?.id === req.user.id;
+  if (isCreator) {
     await database.deletePost(req.params.postid);
     // Redirect to the sub that the post belonged to
     res.redirect(`/subs/show/${post.subgroup}`);
@@ -103,17 +112,18 @@ router.post("/delete/:postid", ensureAuthenticated, async (req, res) => {
 
 // ------------------------------------
 // comments
-router.post("/comment-create/:postid",ensureAuthenticated, async (req, res) => {
+router.post("/comment-create/:postid", ensureAuthenticated, async (req, res) => {
     // ⭐ TODO
-    const postid = req.params.postid
-    const desciption = req.body.desciption
-    const creator = req.user.id
+    const postid = req.params.postid;
+    // FIXED: Spelling of description
+    const description = req.body.description;
+    const creator = req.user.id;
 
-    if (desciption) {
-      await database.addComment(postid, creator, desciption)
+    if (description) {
+      await database.addComment(postid, creator, description);
     }
-  res.redirect(`/posts/show${postid}`)
   
+  res.redirect(`/posts/show/${postid}`);
 });
 
 // ------------------------------------

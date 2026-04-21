@@ -9,15 +9,36 @@
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.classless.min.css"
     />
     <link href="/css/style.css" rel="stylesheet" />
-    <title>CreatePost</title>
+    <title>Create Post</title>
   </head>
   <body>
     <main>
       <div class="authOptions">
         <h1>Create Post</h1>
-        <a role="button" href="/posts">Home</a>
+        <div>
+          <a role="button" href="/" class="outline">Cancel</a>
+        </div>
       </div>
-      <p>Implement this yourself. It comes from createPost.ejs</p>
+
+      <hr>
+
+      <form action="/posts/create" method="POST">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" placeholder="An interesting title" required>
+
+        <label for="link">Link (Optional)</label>
+        <input type="url" id="link" name="link" placeholder="https://example.com">
+
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="5" placeholder="What are your thoughts?" required></textarea>
+
+        <label for="subgroup">Subgroup</label>
+        <small style="display: block; margin-bottom: 10px; color: #666;">
+        </small>
+        <input type="text" id="subgroup" name="subgroup" placeholder="e.g. coding, food, music" required>
+
+        <button type="submit">Submit Post</button>
+      </form>
     </main>
   </body>
 </html>

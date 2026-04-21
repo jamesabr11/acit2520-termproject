@@ -17,9 +17,9 @@ export async function getSubs() {
 
 // create edit and delte posts
 export async function addPost(title: string, link: string, description: string, creator: string | number, subgroup: string) {
+  // title, link, creator, description, subgroup
   return db.addPost(title, link, Number(creator), description, subgroup);
 }
-
 export async function editPost(id: string | number, newData: any) {
   return db.editPost(Number(id), newData);
 }

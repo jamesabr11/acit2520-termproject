@@ -205,5 +205,5 @@ export {
   getSubs,
   addComment,
   decoratePost,
-  addVote,
+  addVote
 };
