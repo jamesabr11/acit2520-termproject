@@ -22,27 +22,71 @@
         <% } %>
       </div>
       <h2>Welcome, <%= user?.uname || "Visitor" %></h2>
-      <div>
-        <p>All Posts</p>
-        <% posts.forEach(post => { %>
-        <div class="individualPost">
-          <a href="/posts/show/<%=post.id%>"><%= post.title %></a>
-          <p><%= post.description %></p>
-        </div>
-        <% }) %>
-      </div>
-
+      
       <div>
         <a href="/subs/list">Subgroups</a>
       </div>
 
+      <% if (user) { %>
       <div>
         <a role="button" href="/posts/create">Create Post</a>
       </div>
+      <% } %>
       <p style="color: rgb(197, 172, 172)">
         😦 Heads up...you probably want to hide the Create Post button above for
         non-logged-in users!
       </p>
+
+      <hr>
+
+      <div>
+        <h3>All Posts</h3>
+        <% posts.forEach(post => { %>
+        <div class="individualPost" style="margin-bottom: 2rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
+          <h4><a href="/posts/show/<%=post.id%>"><%= post.title %></a></h4>
+          
+          <small>Posted by: <%= post.creator?.uname || post.creator %></small>
+          
+          <p><%= post.description %></p>
+          
+          <% 
+            let netVotes = 0;
+            let myVote = 0;
+            
+            // Calculate total votes and find if the current user voted
+            if (post.votes && Array.isArray(post.votes)) {
+                netVotes = post.votes.reduce((total, v) => total + v.value, 0);
+                if (user) {
+                    const existingVote = post.votes.find(v => v.user_id === user.id);
+                    if (existingVote) myVote = existingVote.value;
+                }
+            }
+          %>
+          
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <strong>Net Votes: <%= netVotes %></strong>
+
+            <% if (user) { %>
+              <form action="/posts/vote/<%= post.id %>" method="POST" style="margin: 0;">
+                <input type="hidden" name="setvoteto" value="1">
+                <button type="submit" style="margin: 0; padding: 5px 15px; <%= myVote === 1 ? 'background-color: #28a745; border-color: #28a745;' : '' %>">
+                  + Up
+                </button>
+              </form>
+
+              <form action="/posts/vote/<%= post.id %>" method="POST" style="margin: 0;">
+                <input type="hidden" name="setvoteto" value="-1">
+                <button type="submit" style="margin: 0; padding: 5px 15px; <%= myVote === -1 ? 'background-color: #dc3545; border-color: #dc3545;' : '' %>">
+                  - Down
+                </button>
+              </form>
+            <% } %>
+          </div>
+
+        </div>
+        <% }) %>
+      </div>
+
     </main>
   </body>
 </html>
