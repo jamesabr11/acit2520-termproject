@@ -1,4 +1,6 @@
 // @ts-nocheck
+
+// sample users for login and post ownership
 const users = {
   1: {
     id: 1,
@@ -22,6 +24,7 @@ const users = {
   },
 };
 
+// sample posts stored in memory
 const posts = {
   101: {
     id: 101,
@@ -45,6 +48,7 @@ const posts = {
   },
 };
 
+// sample comments for posts
 const comments = {
   9001: {
     id: 9001,
@@ -55,6 +59,7 @@ const comments = {
   },
 };
 
+// votes are stored separately from posts
 const votes = [
   { user_id: 2, post_id: 101, value: +1 },
   { user_id: 3, post_id: 101, value: +1 },
@@ -62,6 +67,7 @@ const votes = [
   { user_id: 3, post_id: 102, value: -1 },
 ];
 
+// helpful debug function to inspect current fake db state
 function debug() {
   console.log("==== DB DEBUGING ====");
   console.log("users", users);
@@ -71,10 +77,12 @@ function debug() {
   console.log("==== DB DEBUGING ====");
 }
 
+// get one user by id
 function getUser(id) {
   return users[id];
 }
 
+// find a user by username for login
 function getUserByUsername(uname: any) {
   const foundUser = Object.values(users).find(
     (user: any) => user.uname === uname,
@@ -87,10 +95,12 @@ function getUserByUsername(uname: any) {
   }
 }
 
+// get all votes that belong to one post
 function getVotesForPost(post_id) {
   return votes.filter((vote) => vote.post_id === post_id);
 }
 
+// add related creator, votes, and comments onto a post object
 function decoratePost(post) {
   post = {
     ...post,
@@ -107,6 +117,8 @@ function decoratePost(post) {
  * @param {*} n how many posts to get, defaults to 5
  * @param {*} sub which sub to fetch, defaults to all subs
  */
+
+// get newest posts, optionally filtered by subgroup
 function getPosts(n = 5, sub = undefined) {
   let allPosts = Object.values(posts);
   if (sub) {
@@ -116,10 +128,12 @@ function getPosts(n = 5, sub = undefined) {
   return allPosts.slice(0, n);
 }
 
+// get one post by id and decorate it with extra info
 function getPost(id) {
   return decoratePost(posts[id]);
 }
 
+// create and store a new post
 function addPost(title, link, creator, description, subgroup) {
   let id = Math.max(...Object.keys(posts).map(Number)) + 1;
   let post = {
@@ -135,6 +149,7 @@ function addPost(title, link, creator, description, subgroup) {
   return post;
 }
 
+// update editable post fields
 function editPost(post_id, changes = {}) {
   let post = posts[post_id];
   if (changes.title) {
@@ -151,14 +166,17 @@ function editPost(post_id, changes = {}) {
   }
 }
 
+// remove a post from memory
 function deletePost(post_id) {
   delete posts[post_id];
 }
 
+// return a unique list of subgroup names
 function getSubs() {
   return Array.from(new Set(Object.values(posts).map((post) => post.subgroup)));
 }
 
+// create and store a new comment
 function addComment(post_id, creator, description) {
   let id = Math.max(...Object.keys(comments).map(Number)) + 1;
   let comment = {
@@ -171,6 +189,8 @@ function addComment(post_id, creator, description) {
   comments[id] = comment;
   return comment;
 }
+
+// add a new vote or update an existing one
 function addVote(post_id, user_id, value) {
   let existingVote = votes.find(
     (v) => v.post_id === Number(post_id) && v.user_id === Number(user_id),
@@ -205,5 +225,5 @@ export {
   getSubs,
   addComment,
   decoratePost,
-  addVote
+  addVote,
 };
