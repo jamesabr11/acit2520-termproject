@@ -9,17 +9,111 @@
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.classless.min.css"
     />
     <link href="/css/style.css" rel="stylesheet" />
-    <title>Post</title>
+    <title><%= post.title %> - Post</title>
+    <style>
+      .voted-up { background-color: #28a745 !important; border-color: #28a745 !important; }
+      .voted-down { background-color: #dc3545 !important; border-color: #dc3545 !important; }
+      .comment-box { border-left: 3px solid #ddd; padding-left: 1rem; margin-bottom: 1rem; }
+    </style>
   </head>
   <body>
     <main>
       <div class="authOptions">
         <h1>View Post</h1>
-        <a role="button" href="/posts">Home</a>
+        <div>
+          <a role="button" href="/" class="outline">Back to Home</a>
+          <% if (!user) { %>
+            <a role="button" href="/auth/login">Login</a>
+          <% } else { %>
+            <a role="button" href="/auth/logout">Logout</a>
+          <% } %>
+        </div>
       </div>
+
+      <hr>
+
+      <article style="margin-bottom: 2rem;">
+        <h2><a href="<%= post.link %>" target="_blank" rel="noopener noreferrer"><%= post.title %></a></h2>
+        
+        <p><small>
+          Posted by <strong><%= post.creator?.uname || post.creator %></strong> in 
+          <a href="/subs/show/<%= post.subgroup %>">s/<%= post.subgroup %></a> on 
+          <%= new Date(post.timestamp).toLocaleString() %>
+        </small></p>
+
+        <p style="font-size: 1.1rem;"><%= post.description %></p>
+
+        <% if (user && (user.id === post.creator?.id || user.id === post.creator)) { %>
+          <div style="margin-top: 1rem; margin-bottom: 1rem;">
+            <a href="/posts/edit/<%= post.id %>" role="button" class="secondary" style="margin-right: 10px;">Edit Post</a>
+            <a href="/posts/deleteconfirm/<%= post.id %>" role="button" style="background-color: #dc3545; border-color: #dc3545;">Delete Post</a>
+          </div>
+        <% } %>
+
+        <% 
+          let netVotes = 0;
+          let myVote = 0;
+          
+          if (post.votes && Array.isArray(post.votes)) {
+              netVotes = post.votes.reduce((total, v) => total + v.value, 0);
+              if (user) {
+                  const existingVote = post.votes.find(v => v.user_id === user.id);
+                  if (existingVote) myVote = existingVote.value;
+              }
+          }
+        %>
+        
+        <div style="display: flex; align-items: center; gap: 15px; margin-top: 1.5rem;">
+          <strong>Net Votes: <%= netVotes %></strong>
+
+          <% if (user) { %>
+            <form action="/posts/vote/<%= post.id %>" method="POST" style="margin: 0;">
+              <input type="hidden" name="setvoteto" value="1">
+              <button type="submit" class="<%= myVote === 1 ? 'voted-up' : '' %>" style="margin: 0; padding: 5px 15px;">
+                + Up
+              </button>
+            </form>
+
+            <form action="/posts/vote/<%= post.id %>" method="POST" style="margin: 0;">
+              <input type="hidden" name="setvoteto" value="-1">
+              <button type="submit" class="<%= myVote === -1 ? 'voted-down' : '' %>" style="margin: 0; padding: 5px 15px;">
+                - Down
+              </button>
+            </form>
+          <% } else { %>
+            <small><em>(Login to vote)</em></small>
+          <% } %>
+        </div>
+      </article>
+
+      <hr>
+
+      <h3>Comments (<%= comments ? comments.length : 0 %>)</h3>
+
+      <% if (user) { %>
+        <form action="/posts/comment-create/<%= post.id %>" method="POST" style="margin-bottom: 2rem;">
+          <textarea name="description" placeholder="What are your thoughts?" required></textarea>
+          <button type="submit">Add Comment</button>
+        </form>
+      <% } else { %>
+        <p><em>You must be logged in to leave a comment.</em></p>
+      <% } %>
+
       <div>
-        <p>Implement this page yourself. It is from individualPost.ejs</p>
+        <% if (comments && comments.length > 0) { %>
+          <% comments.forEach(comment => { %>
+            <div class="comment-box">
+              <p style="margin-bottom: 0.5rem;"><%= comment.description %></p>
+              <small style="color: #666;">
+                By <strong><%= comment.creator?.uname || comment.creator %></strong> on <%= new Date(comment.timestamp).toLocaleString() %>
+              </small>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p>No comments yet. Be the first!</p>
+        <% } %>
       </div>
+
     </main>
   </body>
 </html>
